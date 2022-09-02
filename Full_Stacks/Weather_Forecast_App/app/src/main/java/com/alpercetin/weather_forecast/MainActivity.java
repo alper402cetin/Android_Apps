@@ -5,6 +5,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -22,6 +27,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
 import com.google.android.material.textfield.TextInputEditText;
 import com.squareup.picasso.Picasso;
 
@@ -133,22 +139,22 @@ public class MainActivity extends AppCompatActivity {
         String url = "http://api.weatherapi.com/v1/forecast.json?key=0e6583a4f97a4a0c94c214512222808&q="+cityName+"&days=1&aqi=yes&alerts=yes";
         cityNameTV.setText(cityName);
         RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,url,new Response.Listener<JSONObject>(){
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
             @Override
-            public void onResponse(JSONObject response){
+            public void onResponse(JSONObject response) {
                 loadingPB.setVisibility(View.GONE);
                 homeRL.setVisibility(View.VISIBLE);
                 weatherRVModelArrayList.clear();
 
                 try {
                     String temperature = response.getJSONObject("current").getString("temp_c");
-                    temperatureTV.setText(temperature+" C");
+                    temperatureTV.setText(temperature + " C");
                     int isDay = response.getJSONObject("current").getInt("is_day");
                     String condition = response.getJSONObject("current").getJSONObject("condition").getString("text");
                     String conditionIcon = response.getJSONObject("current").getJSONObject("condition").getString("icon");
                     Picasso.get().load("http:".concat(conditionIcon)).into(iconIV);
                     conditionTV.setText(condition);
-                    if(isDay==1){
+                    if (isDay == 1) {
                         Picasso.get().load("https://www.google.com/imgres?imgurl=https%3A%2F%2Fmedia.istockphoto.com%2Fphotos%2Fsun-on-blue-sky-picture-id1372419571%3Fb%3D1%26k%3D20%26m%3D1372419571%26s%3D170667a%26w%3D0%26h%3D4imKusTyijlQOKksfJsDPzAFHddtokz8u0axbbYQZkQ%3D&imgrefurl=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fdaytime&tbnid=yJZyShbEem3XdM&vet=12ahUKEwimr_-Nze_5AhUb57sIHUNAC2AQMygKegUIARDQAQ..i&docid=wJx2UfdBBB1EkM&w=509&h=339&q=day%20time%20image&client=opera&ved=2ahUKEwimr_-Nze_5AhUb57sIHUNAC2AQMygKegUIARDQAQ").into(backIV);
                     } else {
                         Picasso.get().load("https://www.google.com/imgres?imgurl=https%3A%2F%2Fimages.unsplash.com%2Fphoto-1617375996248-0e57941f3f3c%3Fixlib%3Drb-1.2.1%26ixid%3DMnwxMjA3fDB8MHxzZWFyY2h8Mnx8bmlnaHQlMjB0aW1lfGVufDB8fDB8fA%253D%253D%26w%3D1000%26q%3D80&imgrefurl=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fnight-time&tbnid=xmOJrlxiUvxAUM&vet=12ahUKEwjIqPCWze_5AhUGwbsIHeDhDywQMygBegUIARDIAQ..i&docid=grMCT6lZYZVJMM&w=1000&h=666&q=night%20time%20image&client=opera&ved=2ahUKEwjIqPCWze_5AhUGwbsIHeDhDywQMygBegUIARDIAQ").into(backIV);
@@ -158,13 +164,13 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject forecastO = forecastObj.getJSONArray("forecastday").getJSONObject(0);
                     JSONArray hourArray = forecastO.getJSONArray("hour");
 
-                    for(int i=0; i<hourArray.length(); i++){
+                    for (int i = 0; i < hourArray.length(); i++) {
                         JSONObject hourObject = hourArray.getJSONObject(i);
                         String time = hourObject.getString("time");
                         String temper = hourObject.getString("temp_c");
                         String img = hourObject.getJSONObject("condition").getString("icon");
                         String wind = hourObject.getString("wind_kph");
-                        weatherRVModelArrayList.add(new WeatherRVModel(time,temper,img,wind));
+                        weatherRVModelArrayList.add(new WeatherRVModel(time, temper, img, wind));
                     }
 
                     weatherRVAdapter.notifyDataSetChanged();
@@ -173,13 +179,13 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-        }, new Response.ErrorListener(){
+        }, new Response.ErrorListener() {
             @Override
-            public void onErrorListener(){
+            public void onErrorResponse(VolleyError error) {
                 Toast.makeText(MainActivity.this, "Please Enter Valid City Name", Toast.LENGTH_SHORT).show();
             }
         });
 
-        requestQueue.add(jsonObjectRequest);
+                requestQueue.add(jsonObjectRequest);
     }
 }
