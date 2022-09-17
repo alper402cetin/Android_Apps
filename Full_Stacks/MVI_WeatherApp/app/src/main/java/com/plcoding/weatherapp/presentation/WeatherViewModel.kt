@@ -45,6 +45,11 @@ class WeatherViewModel @Inject constructor(
                         )
                     }
                 }
+            } ?: kotlin.run {
+                state = state.copy(
+                    isLoading = false,
+                    error = "Couldn't Retrieve Location"
+                )
             }
         }
     }
